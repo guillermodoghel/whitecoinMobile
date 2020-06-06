@@ -1,7 +1,7 @@
 import React from "react";
-import { Root } from "native-base";
+import {Root} from "native-base";
 // import { StackNavigator, DrawerNavigator } from "react-navigation";
-import { createDrawerNavigator, createStackNavigator, createAppContainer } from "react-navigation";
+import {createDrawerNavigator, createStackNavigator, createAppContainer} from "react-navigation";
 
 import Header from "./screens/Header/";
 import Header1 from "./screens/Header/1";
@@ -109,7 +109,12 @@ import AccordionIconStyle from "./screens/accordion/accordion-icon-style";
 import AccordionHeaderContentStyle from "./screens/accordion/accordion-header-content-style";
 import AccordionCustomHeaderContent from "./screens/accordion/accordion-custom-header-content";
 
+import Welcome from "./screens/welcome/";
+import Signup from "./screens/signup/";
 import Home from "./screens/home/";
+import ScanScreen from "./screens/scanScreen";
+/****************/
+
 import Anatomy from "./screens/anatomy/";
 import Footer from "./screens/footer/";
 import NHBadge from "./screens/badge/";
@@ -139,180 +144,188 @@ import NHAccordion from "./screens/accordion/";
 import NHDatePicker from "./screens/datepicker/";
 
 const Drawer = createDrawerNavigator(
-  {
-    Home: { screen: Home },
-    Anatomy: { screen: Anatomy },
-    Header: { screen: Header },
-    Footer: { screen: Footer },
-    NHBadge: { screen: NHBadge },
-    NHButton: { screen: NHButton },
-    NHCard: { screen: NHCard },
-    NHCheckbox: { screen: NHCheckbox },
-    NHDeckSwiper: { screen: NHDeckSwiper },
-    NHFab: { screen: NHFab },
-    NHForm: { screen: NHForm },
-    NHIcon: { screen: NHIcon },
-    NHLayout: { screen: NHLayout },
-    NHList: { screen: NHList },
-    ListSwipe: { screen: ListSwipe },
-    NHRadio: { screen: NHRadio },
-    NHSearchbar: { screen: NHSearchbar },
-    NHSpinner: { screen: NHSpinner },
-    NHPicker: { screen: NHPicker },
-    NHTab: { screen: NHTab },
-    NHThumbnail: { screen: NHThumbnail },
-    NHTypography: { screen: NHTypography },
-    Segment: { screen: Segment },
-    NHToast: { screen: NHToast },
-    Actionsheet: { screen: Actionsheet },
-    NHAccordion: { screen: NHAccordion },
-    NHDatePicker: { screen: NHDatePicker }
-  },
-  {
-    initialRouteName: "Home",
-    contentOptions: {
-      activeTintColor: "#e91e63"
+    {
+        Welcome: {screen: Welcome},
+        Signup: {screen: Signup},
+        Home: {screen: Home},
+        ScanScreen: {screen: ScanScreen},
+        /***************/
+
+        Anatomy: {screen: Anatomy},
+        Header: {screen: Header},
+        Footer: {screen: Footer},
+        NHBadge: {screen: NHBadge},
+        NHButton: {screen: NHButton},
+        NHCard: {screen: NHCard},
+        NHCheckbox: {screen: NHCheckbox},
+        NHDeckSwiper: {screen: NHDeckSwiper},
+        NHFab: {screen: NHFab},
+        NHForm: {screen: NHForm},
+        NHIcon: {screen: NHIcon},
+        NHLayout: {screen: NHLayout},
+        NHList: {screen: NHList},
+        ListSwipe: {screen: ListSwipe},
+        NHRadio: {screen: NHRadio},
+        NHSearchbar: {screen: NHSearchbar},
+        NHSpinner: {screen: NHSpinner},
+        NHPicker: {screen: NHPicker},
+        NHTab: {screen: NHTab},
+        NHThumbnail: {screen: NHThumbnail},
+        NHTypography: {screen: NHTypography},
+        Segment: {screen: Segment},
+        NHToast: {screen: NHToast},
+        Actionsheet: {screen: Actionsheet},
+        NHAccordion: {screen: NHAccordion},
+        NHDatePicker: {screen: NHDatePicker}
     },
-    contentComponent: props => <SideBar {...props} />
-  }
+    {
+        initialRouteName: "Welcome",
+        contentOptions: {
+            activeTintColor: "#e91e63"
+        },
+        contentComponent: props => <SideBar {...props} />
+    }
 );
 
 const AppNavigator = createStackNavigator(
-  {
-    Drawer: { screen: Drawer },
+    {
+        Home: {screen: Home},
+        ScanScreen: {screen: ScanScreen},
 
-    Header1: { screen: Header1 },
-    Header2: { screen: Header2 },
-    Header3: { screen: Header3 },
-    Header4: { screen: Header4 },
-    Header5: { screen: Header5 },
-    Header6: { screen: Header6 },
-    Header7: { screen: Header7 },
-    Header8: { screen: Header8 },
-    HeaderSpan: { screen: HeaderSpan },
-    HeaderNoShadow: { screen: HeaderNoShadow },
-    HeaderNoLeft: { screen: HeaderNoLeft },
-    HeaderTransparent: { screen: HeaderTransparent },
+        Drawer: {screen: Drawer},
 
-    BasicFooter: { screen: BasicFooter },
-    IconFooter: { screen: IconFooter },
-    IconText: { screen: IconText },
-    BadgeFooter: { screen: BadgeFooter },
+        Header1: {screen: Header1},
+        Header2: {screen: Header2},
+        Header3: {screen: Header3},
+        Header4: {screen: Header4},
+        Header5: {screen: Header5},
+        Header6: {screen: Header6},
+        Header7: {screen: Header7},
+        Header8: {screen: Header8},
+        HeaderSpan: {screen: HeaderSpan},
+        HeaderNoShadow: {screen: HeaderNoShadow},
+        HeaderNoLeft: {screen: HeaderNoLeft},
+        HeaderTransparent: {screen: HeaderTransparent},
 
-    Default: { screen: Default },
-    Outline: { screen: Outline },
-    Rounded: { screen: Rounded },
-    Block: { screen: Block },
-    Full: { screen: Full },
-    Custom: { screen: Custom },
-    Transparent: { screen: Transparent },
-    IconBtn: { screen: IconBtn },
-    Disabled: { screen: Disabled },
+        BasicFooter: {screen: BasicFooter},
+        IconFooter: {screen: IconFooter},
+        IconText: {screen: IconText},
+        BadgeFooter: {screen: BadgeFooter},
 
-    BasicCard: { screen: BasicCard },
-    NHCardItemBordered: { screen: NHCardItemBordered },
-    NHCardItemButton: { screen: NHCardItemButton },
-    NHCardImage: { screen: NHCardImage },
-    NHCardShowcase: { screen: NHCardShowcase },
-    NHCardList: { screen: NHCardList },
-    NHCardHeaderAndFooter: { screen: NHCardHeaderAndFooter },
-    NHCardTransparent: { screen: NHCardTransparent },
-    NHCardCustomBorderRadius: { screen: NHCardCustomBorderRadius },
+        Default: {screen: Default},
+        Outline: {screen: Outline},
+        Rounded: {screen: Rounded},
+        Block: {screen: Block},
+        Full: {screen: Full},
+        Custom: {screen: Custom},
+        Transparent: {screen: Transparent},
+        IconBtn: {screen: IconBtn},
+        Disabled: {screen: Disabled},
 
-    SimpleDeck: { screen: SimpleDeck },
-    AdvancedDeck: { screen: AdvancedDeck },
+        BasicCard: {screen: BasicCard},
+        NHCardItemBordered: {screen: NHCardItemBordered},
+        NHCardItemButton: {screen: NHCardItemButton},
+        NHCardImage: {screen: NHCardImage},
+        NHCardShowcase: {screen: NHCardShowcase},
+        NHCardList: {screen: NHCardList},
+        NHCardHeaderAndFooter: {screen: NHCardHeaderAndFooter},
+        NHCardTransparent: {screen: NHCardTransparent},
+        NHCardCustomBorderRadius: {screen: NHCardCustomBorderRadius},
 
-    BasicFab: { screen: BasicFab },
-    MultipleFab: { screen: MultipleFab },
+        SimpleDeck: {screen: SimpleDeck},
+        AdvancedDeck: {screen: AdvancedDeck},
 
-    FixedLabel: { screen: FixedLabel },
-    InlineLabel: { screen: InlineLabel },
-    FloatingLabel: { screen: FloatingLabel },
-    PlaceholderLabel: { screen: PlaceholderLabel },
-    StackedLabel: { screen: StackedLabel },
-    RegularInput: { screen: RegularInput },
-    UnderlineInput: { screen: UnderlineInput },
-    RoundedInput: { screen: RoundedInput },
-    IconInput: { screen: IconInput },
-    SuccessInput: { screen: SuccessInput },
-    ErrorInput: { screen: ErrorInput },
-    DisabledInput: { screen: DisabledInput },
-    PickerInput: { screen: PickerInput },
-    TextArea: { screen: TextArea },
+        BasicFab: {screen: BasicFab},
+        MultipleFab: {screen: MultipleFab},
 
-    Icons: { screen: Icons },
-    BasicIcon: { screen: BasicIcon },
-    StateIcon: { screen: StateIcon },
-    PlatformSpecificIcon: { screen: PlatformSpecificIcon },
-    IconFamily: { screen: IconFamily },
+        FixedLabel: {screen: FixedLabel},
+        InlineLabel: {screen: InlineLabel},
+        FloatingLabel: {screen: FloatingLabel},
+        PlaceholderLabel: {screen: PlaceholderLabel},
+        StackedLabel: {screen: StackedLabel},
+        RegularInput: {screen: RegularInput},
+        UnderlineInput: {screen: UnderlineInput},
+        RoundedInput: {screen: RoundedInput},
+        IconInput: {screen: IconInput},
+        SuccessInput: {screen: SuccessInput},
+        ErrorInput: {screen: ErrorInput},
+        DisabledInput: {screen: DisabledInput},
+        PickerInput: {screen: PickerInput},
+        TextArea: {screen: TextArea},
 
-    RowNB: { screen: RowNB },
-    ColumnNB: { screen: ColumnNB },
-    NestedGrid: { screen: NestedGrid },
-    CustomRow: { screen: CustomRow },
-    CustomCol: { screen: CustomCol },
+        Icons: {screen: Icons},
+        BasicIcon: {screen: BasicIcon},
+        StateIcon: {screen: StateIcon},
+        PlatformSpecificIcon: {screen: PlatformSpecificIcon},
+        IconFamily: {screen: IconFamily},
 
-    NHBasicList: { screen: NHBasicList },
-    NHListItemSelected: { screen: NHListItemSelected },
-    NHListDivider: { screen: NHListDivider },
-    NHListSeparator: { screen: NHListSeparator },
-    NHListHeader: { screen: NHListHeader },
-    NHListIcon: { screen: NHListIcon },
-    NHListAvatar: { screen: NHListAvatar },
-    NHListThumbnail: { screen: NHListThumbnail },
-    NHListItemNoIndent: { screen: NHListItemNoIndent },
+        RowNB: {screen: RowNB},
+        ColumnNB: {screen: ColumnNB},
+        NestedGrid: {screen: NestedGrid},
+        CustomRow: {screen: CustomRow},
+        CustomCol: {screen: CustomCol},
 
-    BasicListSwipe: { screen: BasicListSwipe },
-    SwipeRowCustomStyle: { screen: SwipeRowCustomStyle },
-    MultiListSwipe: { screen: MultiListSwipe },
+        NHBasicList: {screen: NHBasicList},
+        NHListItemSelected: {screen: NHListItemSelected},
+        NHListDivider: {screen: NHListDivider},
+        NHListSeparator: {screen: NHListSeparator},
+        NHListHeader: {screen: NHListHeader},
+        NHListIcon: {screen: NHListIcon},
+        NHListAvatar: {screen: NHListAvatar},
+        NHListThumbnail: {screen: NHListThumbnail},
+        NHListItemNoIndent: {screen: NHListItemNoIndent},
 
-    RegularPicker: { screen: RegularPicker },
-    PickerWithIcon: { screen: PickerWithIcon },
-    PlaceholderPicker: { screen: PlaceholderPicker },
-    PlaceholderPickerNote: { screen: PlaceholderPickerNote },
-    BackButtonPicker: { screen: BackButtonPicker },
-    PickerTextItemText: { screen: PickerTextItemText },
-    HeaderPicker: { screen: HeaderPicker },
-    HeaderStylePicker: { screen: HeaderStylePicker },
-    CustomHeaderPicker: { screen: CustomHeaderPicker },
-    PickerWithIconStyle: { screen: PickerWithIconStyle },
+        BasicListSwipe: {screen: BasicListSwipe},
+        SwipeRowCustomStyle: {screen: SwipeRowCustomStyle},
+        MultiListSwipe: {screen: MultiListSwipe},
 
-    NHCustomRadio: { screen: NHCustomRadio },
-    NHDefaultRadio: { screen: NHDefaultRadio },
+        RegularPicker: {screen: RegularPicker},
+        PickerWithIcon: {screen: PickerWithIcon},
+        PlaceholderPicker: {screen: PlaceholderPicker},
+        PlaceholderPickerNote: {screen: PlaceholderPickerNote},
+        BackButtonPicker: {screen: BackButtonPicker},
+        PickerTextItemText: {screen: PickerTextItemText},
+        HeaderPicker: {screen: HeaderPicker},
+        HeaderStylePicker: {screen: HeaderStylePicker},
+        CustomHeaderPicker: {screen: CustomHeaderPicker},
+        PickerWithIconStyle: {screen: PickerWithIconStyle},
 
-    BasicTab: { screen: BasicTab },
-    ConfigTab: { screen: ConfigTab },
-    ScrollableTab: { screen: ScrollableTab },
+        NHCustomRadio: {screen: NHCustomRadio},
+        NHDefaultRadio: {screen: NHDefaultRadio},
 
-    BasicSegment: { screen: BasicSegment },
-    AdvSegment: { screen: AdvSegment },
-    SegmentHeaderIcon: { screen: SegmentHeaderIcon },
+        BasicTab: {screen: BasicTab},
+        ConfigTab: {screen: ConfigTab},
+        ScrollableTab: {screen: ScrollableTab},
 
-    BasicToast: { screen: BasicToast },
-    ToastDuration: { screen: ToastDuration },
-    ToastPosition: { screen: ToastPosition },
-    ToastType: { screen: ToastType },
-    ToastText: { screen: ToastText },
-    ToastButton: { screen: ToastButton },
+        BasicSegment: {screen: BasicSegment},
+        AdvSegment: {screen: AdvSegment},
+        SegmentHeaderIcon: {screen: SegmentHeaderIcon},
 
-    RegularActionSheet: { screen: RegularActionSheet },
-    IconActionSheet: { screen: IconActionSheet },
+        BasicToast: {screen: BasicToast},
+        ToastDuration: {screen: ToastDuration},
+        ToastPosition: {screen: ToastPosition},
+        ToastType: {screen: ToastType},
+        ToastText: {screen: ToastText},
+        ToastButton: {screen: ToastButton},
 
-    AccordionDefault: { screen: AccordionDefault },
-    AccordionIcon: { screen: AccordionIcon },
-    AccordionIconStyle: { screen: AccordionIconStyle },
-    AccordionHeaderContentStyle: { screen: AccordionHeaderContentStyle },
-    AccordionCustomHeaderContent: { screen: AccordionCustomHeaderContent }
-  },
-  {
-    initialRouteName: "Drawer",
-    headerMode: "none"
-  }
+        RegularActionSheet: {screen: RegularActionSheet},
+        IconActionSheet: {screen: IconActionSheet},
+
+        AccordionDefault: {screen: AccordionDefault},
+        AccordionIcon: {screen: AccordionIcon},
+        AccordionIconStyle: {screen: AccordionIconStyle},
+        AccordionHeaderContentStyle: {screen: AccordionHeaderContentStyle},
+        AccordionCustomHeaderContent: {screen: AccordionCustomHeaderContent}
+    },
+    {
+        initialRouteName: "Drawer",
+        headerMode: "none"
+    }
 );
 
 const AppContainer = createAppContainer(AppNavigator);
 
 export default () =>
-  <Root>
-    <AppContainer />
-  </Root>;
+    <Root>
+        <AppContainer/>
+    </Root>;
