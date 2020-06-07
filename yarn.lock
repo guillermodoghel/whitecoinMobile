@@ -797,7 +797,7 @@
     universal-user-agent "^2.0.0"
     url-template "^2.0.8"
 
-"@react-native-community/async-storage@^1.6.1":
+"@react-native-community/async-storage@^1.11.0", "@react-native-community/async-storage@^1.6.1":
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/@react-native-community/async-storage/-/async-storage-1.11.0.tgz#bf81b8813080846f150c67f531987c429b442166"
   integrity sha512-Pq9LlmvtCEKAGdkyrgTcRxNh2fnHFykEj2qnRYijOl1pDIl2MkD5IxaXu5eOL0wgOtAl4U//ff4z40Td6XR5rw==
@@ -5976,6 +5976,11 @@ react-native-gesture-handler@~1.0.14:
     hoist-non-react-statics "^2.3.1"
     invariant "^2.2.2"
     prop-types "^15.5.10"
+
+react-native-input-code@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-input-code/-/react-native-input-code-1.0.0.tgz#4f1e76d70d408d174927716e7b7556f7abf098aa"
+  integrity sha512-NHqNJgsY3xjf4FnvSCFns1VzBlt5+YYQ3XgGEjpbzadEArrCW7IkFcYJ5EUEteHiYyWEs2+urnPY3hmijFLEuw==
 
 react-native-iphone-x-helper@^1.0.3:
   version "1.2.0"

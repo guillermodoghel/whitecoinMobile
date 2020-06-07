@@ -1,22 +1,22 @@
 import React, {Component} from "react";
-
+import {Dimensions, View, Linking, Platform} from "react-native";
 import {
     Button,
     Container,
-    Content, Form, Input, Item, Spinner,
-    Text,
-
+    Spinner,
+    Text, Toast
 } from "native-base";
 
-import styles from "./styles";
-import {Dimensions, View, Linking, ScrollView} from "react-native";
-import CodeInput from "react-native-confirmation-code-input";
+
 import {StackActions, NavigationActions} from "react-navigation";
 import PhoneInput from "react-native-phone-input";
 import CountryPicker from "react-native-country-picker-modal";
 import {normalize} from "../../utils/visualUtils";
+import {acessRequest, validatePin} from "../../api/users-api";
+import styles from "./styles";
+import InputCode from "react-native-input-code";
+import AsyncStorage from '@react-native-community/async-storage';
 
-const deviceHeight = Dimensions.get("window").height;
 const deviceWidth = Dimensions.get("window").width;
 
 const resetAction = StackActions.reset({
@@ -34,16 +34,17 @@ class Signup extends Component {
 
     constructor() {
         super();
+        this.onPressFlag = this.onPressFlag.bind(this);
+        this.selectCountry = this.selectCountry.bind(this);
+        this.onSubmitPhone = this.onSubmitPhone.bind(this);
+
+
         this.state = {
+            phonenumber: "+541124234523",
             screenStatus: ENTER_PHONE,
             cca2: "AR",
             expiringDate: new Date(new Date().getTime() + (20 * 60 * 1000))
         };
-        this.onPressFlag = this.onPressFlag.bind(this);
-        this.selectCountry = this.selectCountry.bind(this);
-        this.onSubmitPhone = this.onSubmitPhone.bind(this);
-        this.onSubmitPin = this.onSubmitPin.bind(this);
-
     }
 
     componentDidMount() {
@@ -52,14 +53,51 @@ class Signup extends Component {
         });
     }
 
-    onSubmitPhone() {
-        this.setState({screenStatus: ENTER_PIN});
-    }
+    onSubmitPhone = async (number) => {
+        let num = await this.phone.getValue();
+        if (this.phone.isValidNumber()) {
+            this.setState({screenStatus: WAIT});
+            try {
+                const response = await acessRequest(num);
+                console.log(response);
+                this.setState({screenStatus: ENTER_PIN});
+            } catch (e) {
+                this.setState({screenStatus: ENTER_PHONE});
+                Toast.show({
+                    text: "Invalid number",
+                    buttonText: "Okay",
+                    type: "danger",
+                    position: "top"
+                });
+            }
+        } else {
+            Toast.show({
+                text: "Invalid number",
+                buttonText: "Okay",
+                type: "danger",
+                position: "top"
+            });
+        }
+    };
 
-    onSubmitPin(input) {
-        console.log(input);
-
-    }
+    onFullFill = async code => {
+        this.setState({screenStatus: WAIT});
+        try {
+            const response = await validatePin(this.state.phonenumber, code);
+            console.log(response.access_token);
+            await AsyncStorage.setItem('@storage_Key', response.access_token)
+            this.props.navigation.dispatch(resetAction);
+            console.log(response);
+        } catch (e) {
+            this.setState({screenStatus: ENTER_PIN});
+            Toast.show({
+                text: "Invalid code",
+                buttonText: "Okay",
+                type: "danger",
+                position: "top"
+            });
+        }
+    };
 
     backToSubmitPhone() {
         this.setState({screenStatus: ENTER_PHONE});
@@ -67,8 +105,6 @@ class Signup extends Component {
 
 
     render() {
-
-
         if (this.state.screenStatus === ENTER_PHONE) {
             return this._renderEnterYourPhone();
         }
@@ -98,16 +134,20 @@ class Signup extends Component {
                 }}>
                     <PhoneInput
                         style={{marginTop: 20, marginBottom: 20, marginLeft: 20}}
-                        ref={(ref) => {
-                            this.phone = ref;
-                        }}
-
+                        ref={ref => this.phone = ref}
+                        selectCountry={this.state.cca2.toLowerCase()}
                         onPressFlag={this.onPressFlag}
+                        onChangePhoneNumber={(value) => {
+                            this.setState({phonenumber: value});
+                        }}
+                        value={this.state.phonenumber}
+                        initialCountry={"ar"}
                     />
                     <CountryPicker
                         ref={(ref) => {
                             this.countryPicker = ref;
                         }}
+                        value={"AR"}
                         onChange={value => {
                             this.selectCountry(value);
                         }}
@@ -120,7 +160,7 @@ class Signup extends Component {
                 <View style={{marginBottom: 20}}>
                     <Button rounded dark
                             style={{alignSelf: "center", width: deviceWidth * 3 / 4}}
-                            onPress={() => this.onSubmitPhone()}>
+                            onPress={this.onSubmitPhone}>
                         <Text style={{textAlign: "center", width: "100%"}}>Submit</Text>
                     </Button>
                 </View>
@@ -131,29 +171,30 @@ class Signup extends Component {
     _renderEnterPIN() {
         return (
             <Container style={styles.container}>
-                <Text style={{color: "black", textAlign: "center",fontSize: normalize(16),}}>
-                   Wait for the validation code sent to {"\n"}{this.phone.getValue()}
+                <Text style={{color: "black", textAlign: "center", fontSize: normalize(16)}}>
+                    Wait for the validation code sent to {"\n"} {this.state.phonenumber}
                 </Text>
                 <Text style={{color: "black", textDecorationLine: "underline"}}
                       onPress={() => this.backToSubmitPhone()}>
                     Is not your number? Change it.
                 </Text>
 
-                    <CodeInput
-                        ref="codeInput"
-                        codeLength={6}
-                        activeColor='rgba(0, 0, 0, 1)'
-                        inactiveColor='rgba(88, 0, 0, 1.3)'
-                        autoFocus={true}
-                        ignoreCase={true}
-                        inputPosition='center'
-                        size={50}
-                        onFulfill={(isValid) => this.onSubmitPin(isValid)}
-                        containerStyle={{marginTop: 30,marginBottom:20,flex:0}}
-                        codeInputStyle={{borderWidth: 1.5}}
-
-                    />
-
+                <InputCode
+                    style={{marginTop: 40}}
+                    ref={ref => (this.inputCode = ref)}
+                    length={6}
+                    onFullFill={this.onFullFill}
+                    codeContainerStyle={{
+                        borderWidth: 0,
+                        borderBottomWidth: 2,
+                    }}
+                    codeContainerCaretStyle={{
+                        borderWidth: 0,
+                        borderBottomWidth: 2,
+                        borderBottomColor: "red",
+                    }}
+                    autoFocus
+                />
                 <Text style={{color: "black", textDecorationLine: "underline"}}
                       onPress={() => Linking.openURL("http://google.com")}>
                     send again
@@ -175,9 +216,10 @@ class Signup extends Component {
     }
 
     selectCountry(country) {
+        this.phone.refs.inputPhone.blur();
         this.setState({cca2: country.cca2});
         this.phone.selectCountry(country.cca2.toLowerCase());
-        this.phone.focus();
+        Platform.OS === "ios" ? this.phone.focus() : setTimeout(() => this.phone.focus(), 400);
     }
 
 }
