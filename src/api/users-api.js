@@ -1,6 +1,6 @@
 import {BASE_URL} from "./constants";
 
-export function acessRequest(number) {
+export async function acessRequest(number) {
     var raw = JSON.stringify({"number": number});
     var requestOptions = {
         method: "POST",
@@ -8,9 +8,11 @@ export function acessRequest(number) {
         body: raw,
         redirect: "follow"
     };
-    return fetch(BASE_URL + "/users-api/autenticate", requestOptions)
-        .then(response => response.json())
-        .catch(error => console.log("error", error));
+    const response = await fetch(BASE_URL + "/users-api/autenticate", requestOptions);
+    if (response.status === 200) {
+        return await response.json();
+    }
+    throw new Error("my error");
 }
 
 export async function validatePin(number, pin) {
@@ -24,8 +26,7 @@ export async function validatePin(number, pin) {
     };
 
     const response = await fetch(BASE_URL + "/users-api/validatecode", requestOptions);
-    const statusCode = response.status;
-    if (statusCode == 200) {
+    if (response.status === 200) {
         return await response.json();
     }
     throw new Error("my error");

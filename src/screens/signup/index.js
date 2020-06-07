@@ -15,7 +15,7 @@ import {normalize} from "../../utils/visualUtils";
 import {acessRequest, validatePin} from "../../api/users-api";
 import styles from "./styles";
 import InputCode from "react-native-input-code";
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from "@react-native-community/async-storage";
 
 const deviceWidth = Dimensions.get("window").width;
 
@@ -37,8 +37,6 @@ class Signup extends Component {
         this.onPressFlag = this.onPressFlag.bind(this);
         this.selectCountry = this.selectCountry.bind(this);
         this.onSubmitPhone = this.onSubmitPhone.bind(this);
-
-
         this.state = {
             phonenumber: "+541124234523",
             screenStatus: ENTER_PHONE,
@@ -51,56 +49,10 @@ class Signup extends Component {
         this.setState({
             pickerData: this.phone.getPickerData()
         });
-    }
-
-    onSubmitPhone = async (number) => {
-        let num = await this.phone.getValue();
-        if (this.phone.isValidNumber()) {
-            this.setState({screenStatus: WAIT});
-            try {
-                const response = await acessRequest(num);
-                console.log(response);
-                this.setState({screenStatus: ENTER_PIN});
-            } catch (e) {
-                this.setState({screenStatus: ENTER_PHONE});
-                Toast.show({
-                    text: "Invalid number",
-                    buttonText: "Okay",
-                    type: "danger",
-                    position: "top"
-                });
-            }
-        } else {
-            Toast.show({
-                text: "Invalid number",
-                buttonText: "Okay",
-                type: "danger",
-                position: "top"
-            });
+        if (this.state.screenStatus == ENTER_PHONE) {
+            this.phone.refs.inputPhone.blur();
+            Platform.OS === "ios" ? this.phone.focus() : setTimeout(() => this.phone.focus(), 400);
         }
-    };
-
-    onFullFill = async code => {
-        this.setState({screenStatus: WAIT});
-        try {
-            const response = await validatePin(this.state.phonenumber, code);
-            console.log(response.access_token);
-            await AsyncStorage.setItem('@storage_Key', response.access_token)
-            this.props.navigation.dispatch(resetAction);
-            console.log(response);
-        } catch (e) {
-            this.setState({screenStatus: ENTER_PIN});
-            Toast.show({
-                text: "Invalid code",
-                buttonText: "Okay",
-                type: "danger",
-                position: "top"
-            });
-        }
-    };
-
-    backToSubmitPhone() {
-        this.setState({screenStatus: ENTER_PHONE});
     }
 
 
@@ -142,16 +94,20 @@ class Signup extends Component {
                         }}
                         value={this.state.phonenumber}
                         initialCountry={"ar"}
+
                     />
                     <CountryPicker
                         ref={(ref) => {
                             this.countryPicker = ref;
                         }}
                         value={"AR"}
+                        showCallingCode={true}
+                        withCallingCode={true}
+                        hideAlphabetFilter={true}
                         onChange={value => {
                             this.selectCountry(value);
                         }}
-                        translation={"spa"}
+
                         cca2={this.state.cca2}>
                         <View/>
                     </CountryPicker>
@@ -176,9 +132,8 @@ class Signup extends Component {
                 </Text>
                 <Text style={{color: "black", textDecorationLine: "underline"}}
                       onPress={() => this.backToSubmitPhone()}>
-                    Is not your number? Change it.
+                    Not your number? Change it.
                 </Text>
-
                 <InputCode
                     style={{marginTop: 40}}
                     ref={ref => (this.inputCode = ref)}
@@ -195,10 +150,6 @@ class Signup extends Component {
                     }}
                     autoFocus
                 />
-                <Text style={{color: "black", textDecorationLine: "underline"}}
-                      onPress={() => Linking.openURL("http://google.com")}>
-                    send again
-                </Text>
             </Container>
         );
     }
@@ -213,6 +164,54 @@ class Signup extends Component {
 
     onPressFlag() {
         this.countryPicker.openModal();
+    }
+
+
+    onSubmitPhone = async (number) => {
+        let num = await this.phone.getValue();
+        if (this.phone.isValidNumber()) {
+            this.setState({screenStatus: WAIT});
+            try {
+                await acessRequest(num);
+                this.setState({screenStatus: ENTER_PIN});
+            } catch (e) {
+                this.setState({screenStatus: ENTER_PHONE});
+                Toast.show({
+                    text: "Something failed",
+                    buttonText: "Okay",
+                    type: "danger",
+                    position: "top"
+                });
+            }
+        } else {
+            Toast.show({
+                text: "Invalid number",
+                buttonText: "Okay",
+                type: "danger",
+                position: "top"
+            });
+        }
+    };
+
+    onFullFill = async code => {
+        this.setState({screenStatus: WAIT});
+        try {
+            const response = await validatePin(this.state.phonenumber, code);
+            await AsyncStorage.setItem("@storage_Key", response.access_token);
+            this.props.navigation.dispatch(resetAction);
+        } catch (e) {
+            this.setState({screenStatus: ENTER_PIN});
+            Toast.show({
+                text: "Invalid code",
+                buttonText: "Okay",
+                type: "danger",
+                position: "top"
+            });
+        }
+    };
+
+    backToSubmitPhone() {
+        this.setState({screenStatus: ENTER_PHONE});
     }
 
     selectCountry(country) {
