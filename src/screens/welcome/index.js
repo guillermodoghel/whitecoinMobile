@@ -39,19 +39,9 @@ class Welcome extends Component {
                             style={{alignSelf: "center", width: deviceWidth * 3 / 4}}
                             onPress={() => this.props.navigation.navigate('Signup')}
                     >
-                        <Text style={{textAlign: "center",width: "100%"}}>Sign up</Text>
+                        <Text style={{textAlign: "center",width: "100%"}}>Sign up / Log in</Text>
                     </Button>
                 </View>
-
-                <View style={{marginBottom: 20}}>
-                    <Button rounded light
-                            style={{alignSelf: "center", width: deviceWidth * 3 / 4}}
-                            onPress={() => this.props.navigation.openDrawer()}
-                    >
-                        <Text style={{textAlign: "center",width: "100%"}}>Log in</Text>
-                    </Button>
-                </View>
-
             </Container>
 
         );

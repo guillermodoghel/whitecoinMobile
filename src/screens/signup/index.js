@@ -11,20 +11,15 @@ import {
 import {StackActions, NavigationActions} from "react-navigation";
 import PhoneInput from "react-native-phone-input";
 import CountryPicker from "react-native-country-picker-modal";
+import {onSignIn} from "../../utils/authUtils";
 import {normalize} from "../../utils/visualUtils";
 import {acessRequest, validatePin} from "../../api/users-api";
 import styles from "./styles";
 import InputCode from "react-native-input-code";
-import AsyncStorage from "@react-native-community/async-storage";
+
 
 const deviceWidth = Dimensions.get("window").width;
 
-const resetAction = StackActions.reset({
-    index: 0, // <-- currect active route from actions array
-    actions: [
-        NavigationActions.navigate({routeName: "Home"}),
-    ],
-});
 
 const ENTER_PHONE = "enter_phone";
 const ENTER_PIN = "enter_pin";
@@ -197,7 +192,7 @@ class Signup extends Component {
         this.setState({screenStatus: WAIT});
         try {
             const response = await validatePin(this.state.phonenumber, code);
-            await AsyncStorage.setItem("@storage_Key", response.access_token);
+            await onSignIn(response.access_token);
             this.props.navigation.dispatch(resetAction);
         } catch (e) {
             this.setState({screenStatus: ENTER_PIN});
@@ -224,3 +219,10 @@ class Signup extends Component {
 }
 
 export default Signup;
+
+const resetAction = StackActions.reset({
+    index: 0, // <-- currect active route from actions array
+    actions: [
+        NavigationActions.navigate({routeName: "Home"}),
+    ],
+});
