@@ -10,5 +10,8 @@ export async function getHome(token) {
     if (response.status === 200) {
         return await response.json();
     }
+    if (response.status === 401) {
+        throw new Error(401);
+    }
     throw new Error();
 }

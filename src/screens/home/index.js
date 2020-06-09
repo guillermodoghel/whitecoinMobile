@@ -7,12 +7,16 @@ import {
     Text,
     Right,
     Icon,
-    Body, Spinner,
+    Body, Spinner, Toast,
 } from "native-base";
 
-import {Dimensions, View, ScrollView, RefreshControl, Modal,TouchableHighlight} from "react-native";
-import {normalize} from "../../utils/visualUtils";
+import {Dimensions, View, ScrollView, RefreshControl} from "react-native";
+import Modal from "react-native-modal";
 import {NavigationActions, StackActions} from "react-navigation";
+import QRCode from "react-qr-code";
+import AsyncStorage from "@react-native-community/async-storage";
+
+import {normalize} from "../../utils/visualUtils";
 import {onSignOut} from "../../api/users-api";
 import {getHome} from "../../api/wallet-api";
 import {getToken} from "../../utils/authUtils";
@@ -20,6 +24,7 @@ import {getToken} from "../../utils/authUtils";
 import styles from "../signup/styles";
 
 const deviceWidth = Dimensions.get("window").width;
+const deviceHeight = Dimensions.get("window").height;
 const WAIT = "wait";
 const HOME = "home";
 
@@ -35,149 +40,79 @@ class Home extends Component {
     }
 
     async componentDidMount(): void {
-        if (this.state.screenStatus === WAIT) {
-            const token = await getToken();
-            console.log(token);
-            const home = await getHome(token);
-            console.log(home);
-            this.setState({home: home});
-            this.setState({screenStatus: HOME});
+        try {
+            if (this.state.screenStatus === WAIT) {
+                const oldHome = await AsyncStorage.getItem(HOME);
+                console.log(oldHome);
+                if (oldHome != null) {
+                    this.setState({home: JSON.parse(oldHome)});
+                    this.setState({screenStatus: HOME});
+                }
+                const token = await getToken();
+                const home = await getHome(token);
+                console.log(home);
+                this.setState({home: home});
+                this.setState({screenStatus: HOME});
+                await AsyncStorage.setItem(HOME, JSON.stringify(home));
+            }
+        } catch (e) {
+
+            console.log(e);
+            if (e.message == 401) {
+                Toast.show({
+                    text: "Invalid token, login out..",
+                    buttonText: "Okay",
+                    type: "danger",
+                    position: "top"
+                });
+                AsyncStorage.clear();
+                this.props.navigation.dispatch(resetAction);
+            }
+
         }
     }
 
 
     async _refreshListView() {
-        this.setState({refreshing: true});
-        const token = await getToken();
-        const home = await getHome(token);
-        this.setState({home: home});
-        this.setState({refreshing: false}); //Stop Rendering Spinner
+        try {
+            this.setState({refreshing: true});
+            const token = await getToken();
+            const home = await getHome(token);
+            this.setState({home: home});
+            this.setState({refreshing: false}); //Stop Rendering Spinner
+            await AsyncStorage.setItem(HOME, JSON.stringify(home));
+        } catch (e) {
+            if (e.message == 401) {
+                Toast.show({
+                    text: "Invalid token, login out..",
+                    buttonText: "Okay",
+                    type: "danger",
+                    position: "top"
+                });
+                AsyncStorage.clear();
+                this.props.navigation.dispatch(resetAction);
+            }
+        }
+
     }
 
-    _renderHome() {
+    render() {
+        if (this.state.screenStatus === HOME) {
+            return this._renderHome(this.state.home);
+        }
+        if (this.state.screenStatus === WAIT) {
+            return this._renderWait();
+        }
+
+    }
+
+    _renderHome(home) {
         return (
-
             <Container>
-                {this.modal()}
-                <Header style={{backgroundColor: "#000"}}
-                        androidStatusBarColor="#000"
-                        iosBarStyle="light-content">
-                    <Body>
-                        <Title>White coin wallet</Title>
-                    </Body>
-                    <Right>
-                        <Button transparent onPress={() => this.onLogoff()}>
-                            <Icon type="AntDesign" name="logout"/>
-                        </Button>
-                    </Right>
-                </Header>
 
-                <ScrollView
-                    style={{marginLeft: deviceWidth / 16}}
-                    showsVerticalScrollIndicator={false}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={this.state.refreshing}
-                            onRefresh={() => this._refreshListView()}/>}>
-                    <View style={{
-                        marginTop: 20,
-                        width: deviceWidth * 7 / 8,
-                        borderWidth: 1,
-                        borderColor: "black",
-                        borderStyle: "solid",
-
-                    }}>
-                        <Text style={{
-                            fontSize: normalize(10),
-                            textAlign: "left",
-                            marginTop: 20,
-                            marginLeft: 20,
-                            position: "relative"
-                        }}>{this.state.home.adress}</Text>
-                        <Text style={{
-                            fontSize: normalize(16),
-                            textAlign: "left",
-                            marginTop: 5,
-                            marginLeft: 20,
-                            position: "relative"
-                        }}>{this.state.home.user}</Text>
-                        <Text style={{
-                            fontSize: normalize(28),
-                            textAlign: "right",
-                            marginTop: 60,
-                            marginBottom: 20,
-                            marginRight: 20,
-                            position: "relative"
-                        }}> ẅ {Math.round((this.state.home.balance * 100) / 100).toFixed(2)}</Text>
-                    </View>
-                    <View style={{
-                        marginTop: 20,
-                        width: deviceWidth * 7 / 8,
-                        borderWidth: 0,
-                        borderColor: "black",
-                        borderStyle: "solid",
-                        flexDirection: "row",
-                        alignItems: "center",
-
-                        justifyContent: "center"
-
-                    }}>
-                        <Button rounded
-                                dark
-                                onPress={() => this.props.navigation.navigate("ScanScreen")}
-                                style={{
-                                    width: deviceWidth * 3 / 8,
-                                    textAlign: "right",
-                                    marginTop: 20,
-                                    marginBottom: 20,
-                                    position: "relative"
-
-                                }}>
-                            <Text style={{textAlign: "center", width: "100%"}}>Send</Text>
-                        </Button>
-                        <View style={{
-                            width: deviceWidth * 1 / 16,
-                            marginTop: 20,
-                            marginBottom: 20,
-
-                        }}>
-                        </View>
-                        <Button rounded dark
-                                onPress={() => this.setModalVisible(true)}
-
-                                style={{
-                                    width: deviceWidth * 3 / 8,
-                                    textAlign: "right",
-                                    marginTop: 20,
-                                    marginBottom: 20,
-                                    position: "relative"
-                                }}>
-                            <Text style={{textAlign: "center", width: "100%"}}>Receive</Text>
-                        </Button>
-                    </View>
-                    <View style={{
-                        marginTop: 20,
-                        width: deviceWidth * 7 / 8,
-                        borderWidth: 1,
-                        borderColor: "black",
-                        borderStyle: "solid",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flex: 1,
-
-                    }}>
-                    </View>
-                    {this.createTable()}
-                    <View style={{
-                        marginTop: 20,
-                        width: deviceWidth * 7 / 8,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flex: 1,
-
-                    }}>
-                    </View>
-                </ScrollView>
+                {this.header()}
+                {this.modal(home)}
+                {this.scrollableBody(home)}
 
             </Container>
         );
@@ -191,46 +126,202 @@ class Home extends Component {
         );
     }
 
-    render() {
-        if (this.state.screenStatus === HOME) {
-            return this._renderHome();
-        }
-        if (this.state.screenStatus === WAIT) {
-            return this._renderWait();
-        }
 
-    }
-
-    modal = () => {
+    header = () => {
         return (
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={this.state.modalVisible}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Hello World!</Text>
-
-                        <TouchableHighlight
-                            style={{...styles.openButton, backgroundColor: "#2196F3"}}
-                            onPress={() => {
-                                this.setModalVisible(!this.state.modalVisible);
-                            }}
-                        >
-                            <Text style={styles.textStyle}>Hide Modal</Text>
-                        </TouchableHighlight>
-                    </View>
-                </View>
-            </Modal>
+            <Header style={{backgroundColor: "#000"}}
+                    androidStatusBarColor="#000"
+                    iosBarStyle="light-content">
+                <Body>
+                    <Title>White coin wallet</Title>
+                </Body>
+                <Right>
+                    <Button transparent onPress={() => this.onLogoff()}>
+                        <Icon type="AntDesign" name="logout"/>
+                    </Button>
+                </Right>
+            </Header>
         );
     };
 
-    createTable = () => {
-        const localAdress = this.state.home.adress;
-        const transactions = this.state.home.activities;
-        const rows = [];
+    scrollableBody = (home) => {
+        return (
+            <ScrollView
+                style={{marginLeft: deviceWidth / 16}}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={this.state.refreshing}
+                        onRefresh={() => this._refreshListView()}/>}>
+                {this.account(home)}
+                {this.mainActions()}
+                {this.lineSeparator()}
+                {this.activities(home)}
+                {this.footer()}
+            </ScrollView>
+        );
+    };
+    account = (home) => {
+        return (
+            <View style={{
+                marginTop: 20,
+                width: deviceWidth * 7 / 8,
+                borderWidth: 1,
+                borderColor: "black",
+                borderStyle: "solid",
 
+            }}>
+                <Text style={{
+                    fontSize: normalize(10),
+                    textAlign: "left",
+                    marginTop: 20,
+                    marginLeft: 20,
+                    position: "relative"
+                }}>{home.adress}</Text>
+                <Text style={{
+                    fontSize: normalize(16),
+                    textAlign: "left",
+                    marginTop: 5,
+                    marginLeft: 20,
+                    position: "relative"
+                }}>{home.user}</Text>
+                <Text style={{
+                    fontSize: normalize(28),
+                    textAlign: "right",
+                    marginTop: 60,
+                    marginBottom: 20,
+                    marginRight: 20,
+                    position: "relative"
+                }}> ẅ {Math.round((home.balance * 100) / 100).toFixed(2)}</Text>
+            </View>
+        );
+    };
+
+    mainActions = () => {
+        return (
+            <View style={{
+                marginTop: 20,
+                width: deviceWidth * 7 / 8,
+                borderWidth: 0,
+                borderColor: "black",
+                borderStyle: "solid",
+                flexDirection: "row",
+                alignItems: "center",
+
+                justifyContent: "center"
+
+            }}>
+                <Button rounded
+                        dark
+                        onPress={() => this.props.navigation.navigate("ScanScreen")}
+                        style={{
+                            width: deviceWidth * 3 / 8,
+                            textAlign: "right",
+                            marginTop: 20,
+                            marginBottom: 20,
+                            position: "relative"
+
+                        }}>
+                    <Text style={{textAlign: "center", width: "100%"}}>Send</Text>
+                </Button>
+                <View style={{
+                    width: deviceWidth * 1 / 16,
+                    marginTop: 20,
+                    marginBottom: 20,
+
+                }}>
+                </View>
+                <Button rounded dark
+                        onPress={() => this.setModalVisible(true)}
+
+                        style={{
+                            width: deviceWidth * 3 / 8,
+                            textAlign: "right",
+                            marginTop: 20,
+                            marginBottom: 20,
+                            position: "relative"
+                        }}>
+                    <Text style={{textAlign: "center", width: "100%"}}>Receive</Text>
+                </Button>
+            </View>
+        );
+    };
+
+    lineSeparator = () => {
+        return (
+            <View style={{
+                marginTop: 20,
+                width: deviceWidth * 7 / 8,
+                borderWidth: 1,
+                borderColor: "black",
+                borderStyle: "solid",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
+
+            }}/>
+        );
+    };
+
+    footer = () => {
+        return (
+            <View style={{
+                marginTop: 20,
+                width: deviceWidth * 7 / 8,
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
+
+            }}/>
+        );
+    };
+
+
+    modal = (home) => {
+        return (
+            <Modal isVisible={this.state.modalVisible}>
+                <View style={{
+                    height: deviceHeight / 8 * 4,
+                    width: deviceWidth / 8 * 7,
+                    backgroundColor: "white",
+                    alignSelf: "center",
+                    borderWidth: 1,
+                    borderColor: "black",
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}>
+                    <QRCode
+                        value= {home.adress}
+                        size={deviceWidth / 8 * 6}
+                        color="black"
+                        backgroundColor='white'/>
+                    <Text style={{
+                        fontSize: normalize(10),
+                        textAlign: "center",
+                    }}>{home.adress}</Text>
+                    <Button rounded dark onPress={() => this.setModalVisible(false)}
+                            style={{
+                                alignSelf: "center",
+                                width: deviceWidth * 3 / 8,
+                                textAlign: "center",
+                                marginTop: 20,
+                                marginBottom: 20,
+                            }}>
+                        <Text style={{textAlign: "center", width: "100%"}}>Close</Text>
+                    </Button>
+                </View>
+
+            </Modal>
+
+        );
+    };
+
+    activities = (home) => {
+
+        const localAdress = home.adress;
+        const transactions = home.activities;
+
+        const rows = [];
         for (var i = 0; i < transactions.length; i++) {
             rows.push(
                 <View style={{
@@ -261,13 +352,10 @@ class Home extends Component {
                         position: "relative",
                         color: this.txcolor(localAdress, transactions[i].returnValues._from)
                     }}>
-
                         ẅ {this.txPrefix(localAdress, transactions[i].returnValues._from)}{Math.round((transactions[i].returnValues._value * 100) / 100).toFixed(2)}</Text>
                 </View>
             );
         }
-
-
         return rows;
     };
 
@@ -286,10 +374,11 @@ class Home extends Component {
         if (local.toUpperCase() === from.toUpperCase()) {
             return "-";
         }
-        return "";
+        return "+";
     }
 
     onLogoff = async code => {
+        await AsyncStorage.removeItem(HOME);
         await onSignOut();
         this.props.navigation.dispatch(resetAction);
     };

@@ -1,9 +1,3 @@
-import {normalize} from "../../utils/visualUtils";
-
-const React = require("react-native");
-const {Dimensions} = React;
-const deviceWidth = Dimensions.get("window").width;
-
 export default {
   container: {
     flex: 1,
