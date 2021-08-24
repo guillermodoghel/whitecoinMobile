@@ -13,9 +13,10 @@
     "eslint-plugin-react-native": "3.0.1",
     "flow-bin": "0.78.0",
     "flow-typed": "2.5.1",
+    "graceful-fs": "^4.2.8",
     "husky": "0.14.3",
     "jest": "24.1.0",
-    "jetifier": "^1.6.5",
+    "jetifier": "^1.6.8",
     "metro-react-native-babel-preset": "0.52.0",
     "prettier": "1.5.3",
     "react-test-renderer": "16.6.3"
@@ -23,7 +24,8 @@
   "scripts": {
     "start": "react-native start",
     "android": "react-native run-android",
-    "ios": "react-native run-ios"
+    "ios": "react-native run-ios",
+    "postinstall": "npx jetify"
   },
   "jest": {
     "preset": "react-native",
